@@ -62,6 +62,11 @@ long long get_latency(vector<set<int>> sol)
 	return ret;
 }
 
+vector<long long> get_weights(vector<set<int>> sol, int cache_id)
+{
+	return {};
+}
+
 
 long long maxKnapsack[60000];
 vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheSize) //item video_id, video_size, video_score
