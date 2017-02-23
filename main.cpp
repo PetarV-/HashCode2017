@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include <map>
 #include <cassert>
 #include <cstdlib>
@@ -172,9 +174,9 @@ vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheS
                     maxSol=nextValue;
                     capSol=nextUse;
                 }
-		if (nextUse>maxUse)
+		if (nextUse>topUse)
 		{
-		    maxUse=nextUse;
+		    topUse=nextUse;
 		}
             }
         }
@@ -253,15 +255,22 @@ int main(int argc, char *argv[])
 	
 	if(argc != 4)
 	{
-		fprintf(stderr, "Usage: solve <.in file> <.out file> <.bak file>\n");
+		fprintf(stderr, "Usage: solve <.in file> <.out file> <.bak folder>\n");
 		return 1;
 	}
 
 	freopen(argv[1], "r", stdin);
 	freopen(argv[2], "w", stdout);
+	string bakf(argv[3]);
 	
 	load_input();
 
+	vector<set<int>> dummy(n_caches);
+	long long base_latency = get_latency(dummy);
+	int num_requests = 0;
+	for(request r : requests)
+	    num_requests += r.count;
+	
 	vector<set<int>> sol;
 	for(int i = 0; i < n_caches; i++)
 	{
@@ -281,21 +290,24 @@ int main(int argc, char *argv[])
 			int i = perm[ii];
 			
 			vector<long long> score = get_weights(sol, i);
+			//for(auto x : score) cout << x << " "; cout << endl;
 			vector<tuple<int, int, long long>> param;
-			for(int i = 0; i < score.size(); i++)
-				param.push_back(make_tuple(i, video_size[i], score[i]));
+			for(int j = 0; j < score.size(); j++)
+				param.push_back(make_tuple(j, video_size[j], score[j]));
 			
 			vector<int> res = solveKnapsack(param, cache_size);
 			
 			set<int> res_s;
-			for(int i : res) res_s.insert(i);
+			for(int j : res) res_s.insert(j);
 			sol[i] = res_s;
 			
 			if(ii % 50 == 49) fprintf(stderr, "%3d/%3d (iter %3d)\n", ii+1, n_caches, iter+1);
 		}
 
-		fprintf(stderr, "Finished iteration %d, saving backup... ", iter + 1);
-		FILE *bakfile = fopen(argv[3], "w");
+		long long score = (base_latency - get_latency(sol)) / num_requests * 1000LL;
+		
+		fprintf(stderr, "Finished iteration %3d with score %8lld, saving backup... ", iter + 1, score);
+		FILE *bakfile = fopen((bakf + "/" + to_string(iter + 1) + ".bak").c_str(), "w");
 		save_sol(sol, bakfile);
 		fclose(bakfile);
 		fprintf(stderr, "Done.\n");
