@@ -64,11 +64,10 @@ long long get_latency(vector<set<int>> sol)
 
 
 long long maxKnapsack[60000];
-vector <int> solveKnapsack (vector <tuple <int,int,int> > item, int cacheSize) //item video_id, video_size, video_score
+vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheSize) //item video_id, video_size, video_score
 {
     for (int i=0; i<=cacheSize; i++)
         maxKnapsack[i]=-1000000000;
-    maxKnapsack[0]=0;
     maxKnapsack[0]=0;
 
     int topUse=0;
