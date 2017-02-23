@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -34,8 +35,8 @@ long long get_latency(vector<set<int>> sol)
 		int tot = 0;
 		for (auto it = sol[i].begin(); it != sol[i].end(); it++)
 		{
-			tot += (*it);
-			if (tot < cache_size) return -1; // exceeding size of cache!
+			tot += video_size[(*it)];
+			if (tot > cache_size) return -1; // exceeding size of cache!
 		}
 	}
 	
@@ -44,10 +45,10 @@ long long get_latency(vector<set<int>> sol)
 	{
 		int eid = requests[i].from;
 		int vid = requests[i].video;
-		long long opt = endpoint[eid].base_latency;
-		for (int j=0;j<endpoint[eid].conn.size();j++)
+		long long opt = endpoints[eid].base_latency;
+		for (int j=0;j<endpoints[eid].conn.size();j++)
 		{
-			auto curr_conn = endpoint[eid].conn[j];
+			auto curr_conn = endpoints[eid].conn[j];
 			int cid = curr_conn.cache;
 			int lat = curr_conn.latency;
 			if (lat >= opt) continue;
@@ -94,6 +95,6 @@ int main()
     }
 
     printf("%d videos, %d caches", n_videos, n_caches);
-    
+
     return 0;
 }
