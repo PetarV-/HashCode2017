@@ -85,6 +85,8 @@ vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheS
         for (int use=topUse; use>=0; use--)
         {
             int nextUse=use+get<1>(video);
+            if (nextUse>cacheSize)
+                continue;
             int nextValue=maxKnapsack[use]+get<2>(video);
             if (maxKnapsack[nextUse]<nextValue)
             {
@@ -103,6 +105,8 @@ vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheS
     for (auto video : item)
     {
         int nextCap=capSol-get<1>(video);
+        if (nextCap<0)
+            continue;
         if (maxKnapsack[nextCap]+get<2>(video)==maxKnapsack[capSol])
         {
             solution.push_back(get<0>(video));
