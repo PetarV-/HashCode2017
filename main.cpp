@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <vector>
 #include <set>
+#include <tuple>
+#include <algorithm>
 
 using namespace std;
 
@@ -29,7 +31,7 @@ vector<request> requests;
 long long get_latency(vector<set<int>> sol)
 {
 	if (sol.size() > n_caches) return -2; // using more caches than there exist!
-	
+
 	for (int i=0;i<sol.size();i++)
 	{
 		int tot = 0;
@@ -39,7 +41,7 @@ long long get_latency(vector<set<int>> sol)
 			if (tot > cache_size) return -1; // exceeding size of cache!
 		}
 	}
-	
+
 	long long ret = 0LL;
 	for (int i=0;i<requests.size();i++)
 	{
@@ -58,6 +60,52 @@ long long get_latency(vector<set<int>> sol)
 	}
 
 	return ret;
+}
+
+
+long long maxKnapsack[60000];
+vector <int> solveKnapsack (vector <tuple <int,int,int> > item, int cacheSize) //item video_id, video_size, video_score
+{
+    for (int i=0; i<=cacheSize; i++)
+        maxKnapsack[i]=-1000000000;
+    maxKnapsack[0]=0;
+    maxKnapsack[0]=0;
+
+    int topUse=0;
+    long long maxSol,capSol;
+    maxSol=-1000;
+    capSol=-1;
+
+    for (auto video : item)
+    {
+        for (int use=topUse; use>=0; use--)
+        {
+            int nextUse=use+get<1>(video);
+            int nextValue=maxKnapsack[use]+get<2>(video);
+            if (maxKnapsack[nextUse]<nextValue)
+            {
+                maxKnapsack[nextUse]=nextValue;
+                if (nextValue>maxSol)
+                {
+                    maxSol=nextValue;
+                    capSol=nextUse;
+                }
+            }
+        }
+    }
+
+    vector <int> solution;
+    reverse(item.begin(),item.end());
+    for (auto video : item)
+    {
+        int nextCap=capSol-get<1>(video);
+        if (maxKnapsack[nextCap]+get<2>(video)==maxKnapsack[capSol])
+        {
+            solution.push_back(get<0>(video));
+            capSol=nextCap;
+        }
+    }
+    return solution;
 }
 
 int main()
