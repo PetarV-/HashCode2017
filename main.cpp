@@ -172,6 +172,10 @@ vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheS
                     maxSol=nextValue;
                     capSol=nextUse;
                 }
+		if (nextUse>maxUse)
+		{
+		    maxUse=nextUse;
+		}
             }
         }
     }
