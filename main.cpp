@@ -1,3 +1,5 @@
+#include <map>
+#include <cassert>
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
@@ -85,7 +87,7 @@ long long build_shit(vector<set<int>> sol)
     }
 
     req_cid = vector<int>(requests.size());
-    req_lat = vector<int>(requests.size());
+    req_lat = vector<long long>(requests.size());
     long long ret = 0LL;
     for (int i=0;i<requests.size();i++)
     {
@@ -131,8 +133,8 @@ vector<long long> get_weights(vector<set<int>> sol, int cache_id)
             if (!cache_pairs[ept].count(cache_id)) continue;
             int lat = cache_pairs[ept][cache_id];
 
-            prev_cid = req_cid[rq];
-            prev_lat = req_lat[rq];
+            int prev_cid = req_cid[rq];
+            long long prev_lat = req_lat[rq];
             if (lat >= prev_lat) continue;
             gainz += (prev_lat - lat) * cnt;
         }
