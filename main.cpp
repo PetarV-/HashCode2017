@@ -198,6 +198,35 @@ vector <int> solveKnapsack (vector <tuple <int,int,long long> > item, int cacheS
     return solution;
 }
 
+const int N_VIDS = 10005;
+const int CAP = 10005;
+long long dp[N_VIDS][CAP];
+vector<int> solve_knapsack(vector <tuple <int,int,long long> > item, int cacheSize) //item video_id, video_size, video_score
+{
+    int n = item.size();
+    for(int i = 0; i < n; i++) dp[i][0] = 0;
+    
+    for(int i = 0; i < n; i++) 
+	for(int cap = 1; cap <= cacheSize; cap++)
+	    dp[i][cap] = max(i ? dp[i - 1][cap] : 0LL, cap >= get<1>(item[i]) ? ((i ? dp[i - 1][cap - get<1>(item[i])] : 0) + get<2>(item[i])): 0LL); 
+    
+    vector<int> res;
+    int cap = cacheSize, i = n - 1;
+    while(i >= 0 && cap >= 0 && dp[i][cap])
+    {
+	//cerr << i << " " << cap << " " << dp[i][cap] << endl;
+	if(dp[i][cap] == (i ? dp[i - 1][cap] : 0)) i--;
+	else
+	{
+	    res.push_back(get<0>(item[i]));
+	    cap -= get<1>(item[i]);
+	    i--;
+	}
+    }
+
+    return res;
+}
+
 void load_input()
 {
     int n_requests;
@@ -288,20 +317,21 @@ int main(int argc, char *argv[])
 		for(int ii = 0; ii < n_caches; ii++)
 		{
 			int i = perm[ii];
-			
+
+			sol[i].clear();
 			vector<long long> score = get_weights(sol, i);
 			//for(auto x : score) cout << x << " "; cout << endl;
 			vector<tuple<int, int, long long>> param;
 			for(int j = 0; j < score.size(); j++)
 				param.push_back(make_tuple(j, video_size[j], score[j]));
 			
-			vector<int> res = solveKnapsack(param, cache_size);
+			vector<int> res = solve_knapsack(param, cache_size);
 			
 			set<int> res_s;
 			for(int j : res) res_s.insert(j);
 			sol[i] = res_s;
 			
-			if(ii % 50 == 49) fprintf(stderr, "%3d/%3d (iter %3d)\n", ii+1, n_caches, iter+1);
+			if(ii % 20 == 19) fprintf(stderr, "%3d/%3d (iter %3d)\n", ii+1, n_caches, iter+1);
 		}
 
 		long long score = (base_latency - get_latency(sol)) / num_requests * 1000LL;
