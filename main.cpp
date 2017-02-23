@@ -25,6 +25,40 @@ vector<int> video_size;
 vector<endpoint> endpoints;
 vector<request> requests;
 
+long long get_latency(vector<set<int>> sol)
+{
+	if (sol.size() > n_caches) return -2; // using more caches than there exist!
+	
+	for (int i=0;i<sol.size();i++)
+	{
+		int tot = 0;
+		for (auto it = sol[i].begin(); it != sol[i].end(); it++)
+		{
+			tot += (*it);
+			if (tot < cache_size) return -1; // exceeding size of cache!
+		}
+	}
+	
+	long long ret = 0LL;
+	for (int i=0;i<requests.size();i++)
+	{
+		int eid = requests[i].from;
+		int vid = requests[i].video;
+		long long opt = endpoint[eid].base_latency;
+		for (int j=0;j<endpoint[eid].conn.size();j++)
+		{
+			auto curr_conn = endpoint[eid].conn[j];
+			int cid = curr_conn.cache;
+			int lat = curr_conn.latency;
+			if (lat >= opt) continue;
+			if (sol[cid].count(vid)) opt = lat;
+		}
+		ret += opt * requests[i].count;
+	}
+
+	return ret;
+}
+
 int main()
 {
     int n_requests;
